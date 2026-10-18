@@ -405,19 +405,132 @@ def render_quiz_results(quiz: Dict[str, Any]):
 
     st.divider()
 
-    # Detailed Question Review
-    st.subheader("📋 Question-by-Question Review")
+    st.divider()
+
+    # Segregate Wrong vs Correct Questions
+    wrong_questions = []
+    correct_questions = []
+
     for idx, q in enumerate(questions):
         q_id = q["question_id"]
         ev = evaluations.get(q_id)
         is_corr = ev.get("is_correct") if ev else False
-        status_icon = "✅" if is_corr else "❌"
-        marks_str = f"{ev.get('marks_awarded', 0):.1f}/{q.get('marks', 1)}" if ev else "Not answered"
+        item_data = {"index": idx + 1, "question": q, "evaluation": ev, "is_correct": is_corr}
+        if is_corr:
+            correct_questions.append(item_data)
+        else:
+            wrong_questions.append(item_data)
 
-        with st.expander(f"{status_icon} Question {idx + 1}: {q['question_text'][:70]}... ({marks_str} Marks)"):
-            st.markdown(f"**Full Question:** {q['question_text']}")
-            if ev:
-                st.markdown(f"**Your Answer:** `{ev.get('student_answer')}`")
-            st.markdown(f"**Correct Answer:** `{q.get('correct_answer')}`")
-            st.markdown(f"**Explanation:** {q.get('explanation')}")
-            st.markdown(f"**Source Pages:** Page(s) {q.get('source_pages', [1])}")
+    st.subheader("📋 Comprehensive Question Review")
+    st.caption("Inspect your mistakes, compare your answers with the correct solutions, and read step-by-step textbook explanations.")
+
+    tab_wrong, tab_correct, tab_all = st.tabs([
+        f"❌ Incorrect Questions ({len(wrong_questions)})",
+        f"✅ Correct Questions ({len(correct_questions)})",
+        f"📑 All Questions ({len(questions)})"
+    ])
+
+    def render_question_review_card(item):
+        idx = item["index"]
+        q = item["question"]
+        ev = item["evaluation"]
+        is_corr = item["is_correct"]
+
+        stud_ans = ev.get("student_answer", "").strip() if ev else ""
+        if not stud_ans:
+            stud_ans = "No Answer (Skipped / Blank)"
+        corr_ans = q.get("correct_answer", "")
+        max_m = q.get("marks", 1)
+        awarded_m = ev.get("marks_awarded", 0.0) if ev else 0.0
+
+        diff_class = f"badge-{q.get('difficulty', 'medium').lower()}"
+
+        if not is_corr:
+            st.markdown(f"""
+            <div style="background: rgba(30, 41, 59, 0.7); border: 2px solid #EF4444; border-radius: 14px; 
+                        padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 16px; font-weight: 800; color: #FCA5A5;">❌ Question {idx} &nbsp;—&nbsp; INCORRECT (0.0 / {max_m} Marks)</span>
+                    <div>
+                        <span class="badge-pill {diff_class}">{q.get('difficulty', 'Medium')}</span>
+                        <span class="badge-pill badge-topic">{q.get('topic', 'General')}</span>
+                    </div>
+                </div>
+                <div style="font-size: 16px; font-weight: 600; color: #F8FAFC; margin-bottom: 16px; line-height: 1.5;">
+                    {q.get('question_text')}
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                    <div style="background: rgba(127, 29, 29, 0.45); border: 1.5px solid #EF4444; border-radius: 10px; padding: 12px 16px;">
+                        <div style="font-size: 12px; font-weight: 700; color: #FCA5A5; text-transform: uppercase;">Your Submitted Answer</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #FEE2E2; margin-top: 4px;">{stud_ans}</div>
+                    </div>
+                    <div style="background: rgba(6, 78, 59, 0.5); border: 1.5px solid #10B981; border-radius: 10px; padding: 12px 16px;">
+                        <div style="font-size: 12px; font-weight: 700; color: #6EE7B7; text-transform: uppercase;">Correct Answer</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #ECFDF5; margin-top: 4px;">{corr_ans}</div>
+                    </div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.85); border-left: 4px solid #38BDF8; border-radius: 8px; padding: 14px 18px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #38BDF8; text-transform: uppercase; margin-bottom: 4px;">💡 Step-by-Step Explanation & Why Correct</div>
+                    <div style="font-size: 14px; color: #E2E8F0; line-height: 1.6;">{q.get('explanation')}</div>
+                    <div style="font-size: 12px; color: #94A3B8; margin-top: 8px;"><b>Source Textbook:</b> {q.get('chapter')}, Page(s) <b>{q.get('source_pages', [1])}</b></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Show detailed solution steps if present
+            if q.get("solution_steps"):
+                with st.expander(f"🔍 Show Detailed Calculation Steps for Q{idx}"):
+                    for s_idx, step in enumerate(q["solution_steps"]):
+                        st.markdown(f"**Step {s_idx + 1}:** {step}")
+
+        else:
+            st.markdown(f"""
+            <div style="background: rgba(30, 41, 59, 0.7); border: 2px solid #10B981; border-radius: 14px; 
+                        padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 16px; font-weight: 800; color: #6EE7B7;">✅ Question {idx} &nbsp;—&nbsp; CORRECT (+{awarded_m:.1f} / {max_m} Marks)</span>
+                    <div>
+                        <span class="badge-pill {diff_class}">{q.get('difficulty', 'Medium')}</span>
+                        <span class="badge-pill badge-topic">{q.get('topic', 'General')}</span>
+                    </div>
+                </div>
+                <div style="font-size: 16px; font-weight: 600; color: #F8FAFC; margin-bottom: 16px; line-height: 1.5;">
+                    {q.get('question_text')}
+                </div>
+                <div style="background: rgba(6, 78, 59, 0.4); border: 1.5px solid #10B981; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+                    <div style="font-size: 12px; font-weight: 700; color: #6EE7B7; text-transform: uppercase;">Your Correct Answer</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #ECFDF5; margin-top: 4px;">{stud_ans}</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.85); border-left: 4px solid #10B981; border-radius: 8px; padding: 14px 18px;">
+                    <div style="font-size: 13px; font-weight: 700; color: #6EE7B7; text-transform: uppercase; margin-bottom: 4px;">💡 Solution & Explanation</div>
+                    <div style="font-size: 14px; color: #E2E8F0; line-height: 1.6;">{q.get('explanation')}</div>
+                    <div style="font-size: 12px; color: #94A3B8; margin-top: 8px;"><b>Source Textbook:</b> {q.get('chapter')}, Page(s) <b>{q.get('source_pages', [1])}</b></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with tab_wrong:
+        if wrong_questions:
+            st.error(f"You got {len(wrong_questions)} question(s) incorrect. Review each one below to master the concepts!")
+            for item in wrong_questions:
+                render_question_review_card(item)
+        else:
+            st.success("🎉 Outstanding! You had 0 incorrect answers in this quiz.")
+
+    with tab_correct:
+        if correct_questions:
+            st.success(f"Great work! You answered {len(correct_questions)} question(s) correctly.")
+            for item in correct_questions:
+                render_question_review_card(item)
+        else:
+            st.warning("No questions were answered correctly in this attempt. Review the solutions in the 'Incorrect Questions' tab!")
+
+    with tab_all:
+        for idx, q in enumerate(questions):
+            ev = evaluations.get(q["question_id"])
+            render_question_review_card({
+                "index": idx + 1,
+                "question": q,
+                "evaluation": ev,
+                "is_correct": ev.get("is_correct") if ev else False
+            })

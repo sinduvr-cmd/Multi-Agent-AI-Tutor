@@ -81,11 +81,19 @@ class TutorFlow:
             max_revisions=3
         )
 
-        # 3. Persist approved questions in database
+        # 3. Backfill if quality filter removed items and approved count < count
+        if len(approved_questions) < count:
+            needed = count - len(approved_questions)
+            fallback = self.question_generator._get_fallback_questions(
+                document_id, chapter_title, topic, needed, difficulty, question_types or ["MCQ"], [1, 2]
+            )
+            approved_questions.extend(fallback[:needed])
+
+        # 4. Persist approved questions in database
         if approved_questions:
             db.save_questions(approved_questions)
 
-        return approved_questions
+        return approved_questions[:count]
 
     def evaluate_student_answer(
         self,
