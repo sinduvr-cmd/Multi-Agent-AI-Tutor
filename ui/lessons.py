@@ -68,8 +68,14 @@ def render_lessons_view(flow: TutorFlow):
 
     st.divider()
 
-    # Generate or fetch lesson explanation
-    lesson = flow.teaching_agent.explain_concept(selected_topic, mode=explanation_mode)
+    # Generate or fetch cached lesson explanation
+    lesson_cache_key = f"lesson_{selected_topic['topic_id']}_{explanation_mode}"
+    if extra_prompt or lesson_cache_key not in st.session_state:
+        with st.spinner("Agent 2 (Expert AI Tutor) is preparing your personalized explanation..."):
+            lesson = flow.teaching_agent.explain_concept(selected_topic, mode=explanation_mode)
+            st.session_state[lesson_cache_key] = lesson
+    else:
+        lesson = st.session_state[lesson_cache_key]
 
     # 1. Learning Objectives Card
     with st.container():

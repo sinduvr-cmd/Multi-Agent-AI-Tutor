@@ -19,6 +19,15 @@ from services.grading_service import GradingService
 def render_quiz_view(flow: TutorFlow, active_student_id: str):
     # Check if an active quiz session is already in progress
     if "current_quiz" in st.session_state and st.session_state["current_quiz"]:
+        curr_q = st.session_state["current_quiz"]
+        if not curr_q.get("is_completed", False):
+            col_b1, col_b2 = st.columns([3, 1.2])
+            with col_b1:
+                st.caption(f"Currently in progress: **{curr_q['chapter_title']}** ({curr_q['mode']})")
+            with col_b2:
+                if st.button("🔄 Discard & Start New Quiz", key="btn_discard_quiz_top", use_container_width=True):
+                    st.session_state["current_quiz"] = None
+                    st.rerun()
         render_active_quiz(flow, active_student_id)
     else:
         render_quiz_generator(flow, active_student_id)
@@ -150,8 +159,8 @@ def render_active_quiz(flow: TutorFlow, active_student_id: str):
     progress_val = (curr_idx + 1) / total_q
     st.progress(progress_val)
 
-    # Info Bar: Question #, Marks, Topic, Difficulty, Flag
-    col_info1, col_info2 = st.columns([3, 1])
+    # Info Bar: Question #, Marks, Topic, Difficulty, Flag, Quit
+    col_info1, col_info2, col_info3 = st.columns([2.5, 1, 0.8])
     with col_info1:
         diff_class = f"badge-{q.get('difficulty', 'medium').lower()}"
         st.markdown(f"""
@@ -168,6 +177,10 @@ def render_active_quiz(flow: TutorFlow, active_student_id: str):
                 quiz["flagged_questions"].remove(q_id)
             else:
                 quiz["flagged_questions"].append(q_id)
+            st.rerun()
+    with col_info3:
+        if st.button("🚪 Exit Quiz", key=f"btn_quit_{q_id}"):
+            st.session_state["current_quiz"] = None
             st.rerun()
 
     st.write("")

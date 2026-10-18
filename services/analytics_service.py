@@ -56,11 +56,12 @@ class AnalyticsService:
                 radialaxis=dict(
                     visible=True,
                     range=[0, 100],
-                    tickfont=dict(size=10, color="#64748B"),
-                    gridcolor="#E2E8F0"
+                    tickfont=dict(size=10, color="#94A3B8"),
+                    gridcolor="rgba(255, 255, 255, 0.12)"
                 ),
                 angularaxis=dict(
-                    tickfont=dict(size=11, color="#1E293B", family="sans-serif")
+                    tickfont=dict(size=11, color="#F8FAFC", family="sans-serif"),
+                    gridcolor="rgba(255, 255, 255, 0.1)"
                 )
             ),
             showlegend=False,
@@ -79,7 +80,7 @@ class AnalyticsService:
         if total == 0:
             labels = ["No Data"]
             values = [1]
-            colors = ["#CBD5E1"]
+            colors = ["#475569"]
         else:
             labels = ["Correct", "Incorrect"]
             values = [correct, incorrect]
@@ -96,9 +97,9 @@ class AnalyticsService:
 
         pct_text = f"{int((correct / max(1, total)) * 100)}%" if total > 0 else "0%"
         fig.update_layout(
-            annotations=[dict(text=pct_text, x=0.5, y=0.5, font_size=24, font_family="sans-serif", font_color="#1E293B", showarrow=False)],
+            annotations=[dict(text=pct_text, x=0.5, y=0.5, font_size=26, font_family="sans-serif", font_color="#F8FAFC", showarrow=False)],
             showlegend=True,
-            legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5),
+            legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5, font=dict(color="#F8FAFC")),
             margin=dict(l=10, r=10, t=10, b=20),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
@@ -114,7 +115,7 @@ class AnalyticsService:
             fig.add_annotation(
                 text="No quiz history yet. Start a quiz to track your progress!",
                 xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
-                font=dict(size=14, color="#64748B")
+                font=dict(size=14, color="#94A3B8")
             )
             fig.update_layout(
                 xaxis=dict(visible=False), yaxis=dict(visible=False),
@@ -136,22 +137,45 @@ class AnalyticsService:
             y=df["marks_awarded"],
             name="Marks Earned",
             marker_color="#818CF8",
-            opacity=0.7
+            opacity=0.75
         ))
         fig.add_trace(go.Scatter(
             x=list(range(1, len(df) + 1)),
             y=df["rolling_accuracy"],
             name="Accuracy Trend (5-Q Avg %)",
             mode='lines+markers',
-            line=dict(color='#059669', width=2.5),
+            line=dict(color='#34D399', width=2.5),
+            marker=dict(size=6, color='#10B981'),
             yaxis="y2"
         ))
 
         fig.update_layout(
-            yaxis=dict(title="Marks", range=[0, max(df["max_marks"]) + 1]),
-            yaxis2=dict(title="Accuracy %", overlaying="y", side="right", range=[0, 105]),
-            xaxis=dict(title="Question Attempt #", gridcolor="#F1F5F9"),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            yaxis=dict(
+                title=dict(text="Marks", font=dict(color="#CBD5E1")),
+                tickfont=dict(color="#94A3B8"),
+                gridcolor="rgba(255, 255, 255, 0.08)",
+                range=[0, max(df["max_marks"]) + 1]
+            ),
+            yaxis2=dict(
+                title=dict(text="Accuracy %", font=dict(color="#34D399")),
+                tickfont=dict(color="#34D399"),
+                overlaying="y",
+                side="right",
+                range=[0, 105]
+            ),
+            xaxis=dict(
+                title=dict(text="Question Attempt #", font=dict(color="#CBD5E1")),
+                tickfont=dict(color="#94A3B8"),
+                gridcolor="rgba(255, 255, 255, 0.08)"
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1,
+                font=dict(color="#F8FAFC")
+            ),
             margin=dict(l=40, r=40, t=30, b=40),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",

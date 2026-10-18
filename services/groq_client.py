@@ -93,7 +93,8 @@ class GroqService:
                     "model": self.model,
                     "messages": messages,
                     "temperature": temperature,
-                    "max_tokens": max_tokens
+                    "max_tokens": max_tokens,
+                    "timeout": 15.0
                 }
                 if response_format:
                     kwargs["response_format"] = response_format
@@ -102,15 +103,12 @@ class GroqService:
                 return chat_completion.choices[0].message.content
 
             except RateLimitError:
-                sleep_time = (2 ** attempt) * 2
+                sleep_time = (2 ** attempt) * 1.5
                 time.sleep(sleep_time)
-            except APIError as e:
-                if attempt == max_retries - 1:
-                    raise RuntimeError(f"Groq API error after {max_retries} retries: {str(e)}")
-                time.sleep(2)
             except Exception as e:
                 if attempt == max_retries - 1:
-                    raise RuntimeError(f"Unexpected Groq inference error: {str(e)}")
-                time.sleep(2)
+                    # Gracefully fall back to verified CBSE content instead of crashing the UI
+                    return None
+                time.sleep(1)
 
         return None
