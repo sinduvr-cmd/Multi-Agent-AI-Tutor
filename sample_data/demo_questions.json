@@ -1,0 +1,241 @@
+[
+  {
+    "question_id": "q_demo_1",
+    "document_id": "doc_perimeter_area",
+    "chapter": "Perimeter and Area",
+    "topic": "Perimeter of Regular Shapes",
+    "question_type": "MCQ",
+    "question_text": "Find the perimeter of a rectangle whose length is 15 cm and breadth is 10 cm.",
+    "difficulty": "Easy",
+    "marks": 1,
+    "options": ["25 cm", "50 cm", "150 cm", "100 cm"],
+    "correct_answer": "50 cm",
+    "accepted_alternatives": ["50", "50cm", "50 centimeters"],
+    "explanation": "The perimeter of a rectangle is calculated as 2 × (Length + Breadth). Here, 2 × (15 cm + 10 cm) = 2 × 25 cm = 50 cm. Option A (25 cm) is incorrect because it only adds length and breadth once without doubling. Option C (150 cm) is incorrect because it computes the area rather than perimeter.",
+    "solution_steps": [
+      "Given: Length (l) = 15 cm, Breadth (b) = 10 cm",
+      "Formula: Perimeter = 2 × (l + b)",
+      "Calculation: 2 × (15 + 10) = 2 × 25 = 50 cm"
+    ],
+    "source_pages": [1, 2],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_2",
+    "document_id": "doc_perimeter_area",
+    "chapter": "Perimeter and Area",
+    "topic": "Perimeter of Regular Shapes",
+    "question_type": "Fill Blank",
+    "question_text": "The perimeter of an equilateral triangle with side length 7 cm is __________ cm.",
+    "difficulty": "Easy",
+    "marks": 1,
+    "correct_answer": "21",
+    "accepted_alternatives": ["21 cm", "21cm", "21.0"],
+    "explanation": "An equilateral triangle has 3 equal sides. Perimeter = 3 × Side = 3 × 7 cm = 21 cm.",
+    "solution_steps": [
+      "Formula: Perimeter of equilateral triangle = 3 × side",
+      "Perimeter = 3 × 7 = 21 cm"
+    ],
+    "source_pages": [1],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_3",
+    "document_id": "doc_perimeter_area",
+    "chapter": "Perimeter and Area",
+    "topic": "Area of Rectangles and Squares",
+    "question_type": "Numerical",
+    "question_text": "A square plot of land has a side length of 12 m. What is its total area in square meters?",
+    "difficulty": "Medium",
+    "marks": 2,
+    "correct_answer": "144",
+    "accepted_alternatives": ["144 m^2", "144 sq m", "144 m2", "144 sqm"],
+    "explanation": "The area of a square is calculated as Side × Side. Here, Area = 12 m × 12 m = 144 m².",
+    "solution_steps": [
+      "Given: Side (s) = 12 m",
+      "Formula: Area = s × s = s²",
+      "Calculation: 12 × 12 = 144 m²"
+    ],
+    "source_pages": [2],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_4",
+    "document_id": "doc_perimeter_area",
+    "chapter": "Perimeter and Area",
+    "topic": "Perimeter of Regular Shapes",
+    "question_type": "True/False",
+    "question_text": "If the length of each side of a square is doubled, its perimeter will also be doubled.",
+    "difficulty": "Medium",
+    "marks": 1,
+    "options": ["True", "False"],
+    "correct_answer": "True",
+    "accepted_alternatives": ["true", "T"],
+    "explanation": "True. If initial side is 's', initial perimeter P1 = 4s. If side becomes 2s, new perimeter P2 = 4(2s) = 8s = 2 × P1. Hence perimeter is exactly doubled.",
+    "solution_steps": [
+      "Initial Perimeter = 4 × s",
+      "New Perimeter with side 2s = 4 × (2s) = 8s = 2 × (4s)",
+      "Thus, the perimeter doubles."
+    ],
+    "source_pages": [1, 2],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_5",
+    "document_id": "doc_perimeter_area",
+    "chapter": "Perimeter and Area",
+    "topic": "Area of Rectangles and Squares",
+    "question_type": "Assertion and Reason",
+    "question_text": "Assertion (A): The area of a rectangular cardboard sheet of length 8 cm and width 5 cm is 40 cm².\nReason (R): The area of any rectangle is calculated by multiplying its length by its breadth.",
+    "difficulty": "Medium",
+    "marks": 1,
+    "options": [
+      "Both (A) and (R) are true and (R) is the correct explanation of (A).",
+      "Both (A) and (R) are true but (R) is NOT the correct explanation of (A).",
+      "(A) is true but (R) is false.",
+      "(A) is false but (R) is true."
+    ],
+    "correct_answer": "Both (A) and (R) are true and (R) is the correct explanation of (A).",
+    "explanation": "Assertion is correct because Area = 8 × 5 = 40 cm². Reason is correct because the standard formula for rectangular area is Length × Breadth, and Reason directly explains Assertion.",
+    "solution_steps": [
+      "Check (A): Area = 8 × 5 = 40 cm² (True)",
+      "Check (R): Area = Length × Breadth (True)",
+      "Since (R) provides the exact mathematical rationale for (A), option A is the correct answer."
+    ],
+    "source_pages": [2],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_6",
+    "document_id": "doc_perimeter_area",
+    "chapter": "Perimeter and Area",
+    "topic": "Applications & Word Problems (Flooring and Fencing)",
+    "question_type": "Short Answer",
+    "question_text": "A rectangular room floor is 4 m long and 3 m wide. How many square tiles of side 50 cm are required to pave the entire floor?",
+    "difficulty": "Hard",
+    "marks": 3,
+    "correct_answer": "48 tiles",
+    "accepted_alternatives": ["48", "48tiles"],
+    "explanation": "Area of room = 400 cm × 300 cm = 1,20,000 cm². Area of each tile = 50 cm × 50 cm = 2,500 cm². Number of tiles required = 1,20,000 ÷ 2,500 = 48 tiles.",
+    "solution_steps": [
+      "Convert dimensions: 4 m = 400 cm, 3 m = 300 cm",
+      "Area of floor = 400 × 300 = 120,000 cm²",
+      "Area of one tile = 50 × 50 = 2,500 cm²",
+      "Number of tiles = 120,000 ÷ 2,500 = 48"
+    ],
+    "marking_rubric": [
+      {"criterion": "Unit conversion to centimeters", "points": 1.0, "description": "Converts 4 m and 3 m to 400 cm and 300 cm"},
+      {"criterion": "Area calculations", "points": 1.0, "description": "Calculates floor area (120,000 cm²) and tile area (2,500 cm²)"},
+      {"criterion": "Final division and answer", "points": 1.0, "description": "Divides correctly to get 48 tiles"}
+    ],
+    "source_pages": [2],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_7",
+    "document_id": "doc_perimeter_area",
+    "chapter": "Perimeter and Area",
+    "topic": "Applications & Word Problems (Flooring and Fencing)",
+    "question_type": "Case Study",
+    "question_text": "Case Study: An eco-friendly sports complex has a central rectangular lawn of length 50 m and width 30 m. A paved running track of uniform width 2 m is constructed all around the outside of the lawn.\n(i) What is the area of the central rectangular lawn?\n(ii) What are the dimensions of the outer boundary including the track?\n(iii) What is the total area of the running track?",
+    "difficulty": "Hard",
+    "marks": 4,
+    "correct_answer": "Lawn: 1500 m², Outer: 54 m by 34 m, Track: 336 m²",
+    "accepted_alternatives": ["1500, 54x34, 336"],
+    "explanation": "Inner lawn area = 50 × 30 = 1500 m². Outer length = 50 + 2(2) = 54 m; Outer width = 30 + 2(2) = 34 m. Outer area = 54 × 34 = 1836 m². Track area = 1836 - 1500 = 336 m².",
+    "solution_steps": [
+      "Lawn area = 50 × 30 = 1500 m²",
+      "Outer length = 50 + 2 + 2 = 54 m, Outer width = 30 + 2 + 2 = 34 m",
+      "Outer area = 54 × 34 = 1836 m²",
+      "Area of track = 1836 - 1500 = 336 m²"
+    ],
+    "subquestions": [
+      {
+        "sub_id": "sub_1",
+        "question_text": "What is the area of the central rectangular lawn?",
+        "question_type": "MCQ",
+        "marks": 1,
+        "options": ["1500 m²", "160 m²", "3000 m²", "1836 m²"],
+        "correct_answer": "1500 m²",
+        "explanation": "Area of lawn = Length × Breadth = 50 m × 30 m = 1500 m²."
+      },
+      {
+        "sub_id": "sub_2",
+        "question_text": "What is the total area of the running track surrounding the lawn?",
+        "question_type": "MCQ",
+        "marks": 2,
+        "options": ["336 m²", "320 m²", "280 m²", "1836 m²"],
+        "correct_answer": "336 m²",
+        "explanation": "Outer area = 54 × 34 = 1836 m². Lawn area = 1500 m². Track area = 1836 - 1500 = 336 m²."
+      }
+    ],
+    "source_pages": [2],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_8",
+    "document_id": "doc_perimeter_area",
+    "chapter": "Perimeter and Area",
+    "topic": "Perimeter of Regular Shapes",
+    "question_type": "Matching",
+    "question_text": "Match each regular 2D polygon with its corresponding perimeter formula (where 's' represents side length):",
+    "difficulty": "Medium",
+    "marks": 2,
+    "correct_answer": "Square -> 4 × s, Equilateral Triangle -> 3 × s, Regular Pentagon -> 5 × s, Regular Hexagon -> 6 × s",
+    "matching_pairs": {
+      "Square": "4 × s",
+      "Equilateral Triangle": "3 × s",
+      "Regular Pentagon": "5 × s",
+      "Regular Hexagon": "6 × s"
+    },
+    "explanation": "A regular polygon has all sides equal. Perimeter is the number of sides multiplied by the side length 's'.",
+    "solution_steps": [
+      "Square has 4 equal sides -> 4 × s",
+      "Equilateral triangle has 3 equal sides -> 3 × s",
+      "Regular pentagon has 5 equal sides -> 5 × s",
+      "Regular hexagon has 6 equal sides -> 6 × s"
+    ],
+    "source_pages": [1],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_9",
+    "document_id": "doc_fractions",
+    "chapter": "Fractions",
+    "topic": "Fractions on Number Line & Types of Fractions",
+    "question_type": "MCQ",
+    "question_text": "Which of the following is an example of a proper fraction?",
+    "difficulty": "Easy",
+    "marks": 1,
+    "options": ["7/4", "3/8", "9/5", "11/2"],
+    "correct_answer": "3/8",
+    "explanation": "In a proper fraction, the numerator is strictly less than the denominator. For 3/8, 3 < 8, making it proper. Fractions 7/4, 9/5, and 11/2 have numerators greater than their denominators, so they are improper fractions.",
+    "solution_steps": [
+      "Definition: Proper fraction has Numerator < Denominator",
+      "Check: 3 < 8, so 3/8 is proper"
+    ],
+    "source_pages": [1],
+    "validation_status": "approved"
+  },
+  {
+    "question_id": "q_demo_10",
+    "document_id": "doc_fractions",
+    "chapter": "Fractions",
+    "topic": "Addition and Subtraction of Like and Unlike Fractions",
+    "question_type": "Numerical",
+    "question_text": "Evaluate the sum: 2/5 + 1/3. Express your answer as a simplified fraction (e.g. 11/15).",
+    "difficulty": "Medium",
+    "marks": 2,
+    "correct_answer": "11/15",
+    "accepted_alternatives": ["11/15", "0.733", "0.73"],
+    "explanation": "To add unlike fractions 2/5 and 1/3, find LCM of denominators 5 and 3, which is 15. Convert: 2/5 = 6/15 and 1/3 = 5/15. Sum = 6/15 + 5/15 = 11/15.",
+    "solution_steps": [
+      "LCM of 5 and 3 = 15",
+      "Convert: 2/5 = (2 × 3)/15 = 6/15",
+      "Convert: 1/3 = (1 × 5)/15 = 5/15",
+      "Add: 6/15 + 5/15 = 11/15"
+    ],
+    "source_pages": [2],
+    "validation_status": "approved"
+  }
+]
