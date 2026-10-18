@@ -336,11 +336,12 @@ def save_questions(questions: List[Dict[str, Any]]):
         cursor = conn.cursor()
         for q in questions:
             doc_id = q.get("document_id", "doc_default")
+            chap = q.get("chapter", "Chapter")
             cursor.execute("SELECT document_id FROM documents WHERE document_id = ?", (doc_id,))
             if not cursor.fetchone():
                 cursor.execute(
                     "INSERT OR IGNORE INTO documents (document_id, filename, title, page_count) VALUES (?, ?, ?, 1)",
-                    (doc_id, f"{doc_id}.pdf", q.get("chapter", "Chapter"))
+                    (doc_id, f"{doc_id}.pdf", chap)
                 )
 
             cursor.execute("""
@@ -354,18 +355,18 @@ def save_questions(questions: List[Dict[str, Any]]):
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 q["question_id"],
-                q["document_id"],
+                doc_id,
                 q.get("topic_id"),
-                q["chapter"],
-                q["topic"],
-                q["question_type"],
-                q["question_text"],
+                chap,
+                q.get("topic", "General"),
+                q.get("question_type", "MCQ"),
+                q.get("question_text", "Question"),
                 q.get("difficulty", "Medium"),
                 q.get("marks", 1),
                 json.dumps(q.get("options", [])),
-                q["correct_answer"],
+                q.get("correct_answer", ""),
                 json.dumps(q.get("accepted_alternatives", [])),
-                q["explanation"],
+                q.get("explanation", ""),
                 json.dumps(q.get("solution_steps", [])),
                 json.dumps(q.get("marking_rubric", [])),
                 q.get("diagram_reference"),
@@ -428,18 +429,35 @@ def get_questions_by_filter(
 # ---------------- Quiz Sessions & Attempts ---------------- #
 
 def save_quiz_session(session: Dict[str, Any]):
+    sess_id = session["session_id"]
+    std_id = session["student_id"]
+    doc_id = session.get("document_id", "doc_default")
+    chap = session.get("chapter_title", "Chapter")
+
     with get_connection() as conn:
         cursor = conn.cursor()
+
+        # Ensure student exists
+        cursor.execute("SELECT student_id FROM students WHERE student_id = ?", (std_id,))
+        if not cursor.fetchone():
+            cursor.execute("INSERT OR IGNORE INTO students (student_id, name) VALUES (?, ?)", (std_id, "Student"))
+
+        # Ensure document exists
+        cursor.execute("SELECT document_id FROM documents WHERE document_id = ?", (doc_id,))
+        if not cursor.fetchone():
+            cursor.execute("INSERT OR IGNORE INTO documents (document_id, filename, title, page_count) VALUES (?, ?, ?, ?)",
+                           (doc_id, f"{doc_id}.pdf", chap, 1))
+
         cursor.execute("""
             INSERT OR REPLACE INTO quiz_sessions
             (session_id, student_id, document_id, chapter_title, mode, total_marks,
              current_score, is_completed, start_time, end_time, state_json)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            session["session_id"],
-            session["student_id"],
-            session["document_id"],
-            session["chapter_title"],
+            sess_id,
+            std_id,
+            doc_id,
+            chap,
             session.get("mode", "Practice Mode"),
             session["total_marks"],
             session.get("current_score", 0.0),
@@ -473,24 +491,42 @@ def record_question_attempt(attempt: Dict[str, Any]):
     with get_connection() as conn:
         cursor = conn.cursor()
 
-        # Ensure student exists
+        # 1. Ensure student exists
         cursor.execute("SELECT student_id FROM students WHERE student_id = ?", (std_id,))
         if not cursor.fetchone():
             cursor.execute("INSERT OR IGNORE INTO students (student_id, name) VALUES (?, ?)", (std_id, "Student"))
 
-        # Ensure question exists or get document_id
+        # 2. Check if question exists or extract document_id
         cursor.execute("SELECT document_id, chapter FROM questions WHERE question_id = ?", (q_id,))
         q_row = cursor.fetchone()
-        doc_id = q_row["document_id"] if q_row else "doc_default"
-        chap = q_row["chapter"] if q_row else "Chapter"
+        doc_id = attempt.get("document_id") or (q_row["document_id"] if q_row else "doc_default")
+        chap = attempt.get("chapter") or (q_row["chapter"] if q_row else "Chapter")
 
-        # Ensure document exists
+        # 3. Ensure document exists
         cursor.execute("SELECT document_id FROM documents WHERE document_id = ?", (doc_id,))
         if not cursor.fetchone():
             cursor.execute("INSERT OR IGNORE INTO documents (document_id, filename, title, page_count) VALUES (?, ?, ?, ?)",
-                           (doc_id, "default.pdf", chap, 1))
+                           (doc_id, f"{doc_id}.pdf", chap, 1))
 
-        # Ensure session exists
+        # 4. Guarantee question exists in questions table to satisfy FOREIGN KEY constraint
+        if not q_row:
+            cursor.execute("""
+                INSERT OR IGNORE INTO questions
+                (question_id, document_id, chapter, topic, question_type,
+                 question_text, correct_answer, explanation)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                q_id,
+                doc_id,
+                chap,
+                attempt.get("topic", "General"),
+                attempt.get("question_type", "Numerical"),
+                attempt.get("question_text", "Question"),
+                attempt.get("correct_answer", ""),
+                attempt.get("detailed_solution") or attempt.get("explanation", "")
+            ))
+
+        # 5. Ensure session exists
         cursor.execute("SELECT session_id FROM quiz_sessions WHERE session_id = ?", (sess_id,))
         if not cursor.fetchone():
             cursor.execute("""
@@ -499,6 +535,7 @@ def record_question_attempt(attempt: Dict[str, Any]):
                 VALUES (?, ?, ?, ?, ?)
             """, (sess_id, std_id, doc_id, chap, 10))
 
+        # 6. Insert Question Attempt
         cursor.execute("""
             INSERT INTO question_attempts
             (session_id, student_id, question_id, student_answer, is_correct,

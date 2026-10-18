@@ -143,34 +143,48 @@ class PDFProcessor:
         """Detects chapter title, subject, grade and extracts structured topics."""
         lower_filename = filename.lower()
         lower_text = full_text.lower()
+        sample_text = full_text[:4000]
         
         # 1. Subject Detection
         subject = "Mathematics"
-        if "science" in lower_filename or "science" in lower_text[:500]:
+        if "science" in lower_filename or "science" in lower_text[:1000]:
             subject = "Science"
         elif "history" in lower_filename or "social" in lower_filename:
             subject = "Social Science"
             
         # 2. Grade Detection
-        grade = "Class 6"
-        grade_match = re.search(r"(class|grade)\s*(\d{1,2})", filename + " " + full_text[:500], re.I)
+        grade = "Class 7" if ("fmaly" in lower_filename or "gemh" in lower_filename) else "Class 6"
+        grade_match = re.search(r"(class|grade)\s*(\d{1,2})", filename + " " + sample_text, re.I)
         if grade_match:
             grade = f"Class {grade_match.group(2)}"
 
         # 3. Chapter Title Detection
-        title = "Mathematics Chapter"
-        if "perimeter" in lower_filename or "area" in lower_filename or "perimeter" in lower_text[:1000]:
+        title = None
+        if "perimeter" in lower_filename or "perimeter" in lower_text or "circumference" in lower_text or "area" in lower_filename:
             title = "Perimeter and Area"
-        elif "fraction" in lower_filename or "fraction" in lower_text[:1000]:
+        elif "fraction" in lower_filename or "fraction" in lower_text or "numerator" in lower_text:
             title = "Fractions"
-        elif "algebra" in lower_filename:
-            title = "Algebra"
-        elif "ratio" in lower_filename:
+        elif "integer" in lower_filename or "integers" in lower_text:
+            title = "Integers"
+        elif "algebra" in lower_filename or "algebra" in lower_text or "linear equation" in lower_text:
+            title = "Algebra and Simple Equations"
+        elif "ratio" in lower_filename or "proportion" in lower_text:
             title = "Ratio and Proportion"
+        elif "triangle" in lower_text:
+            title = "Triangles and Elementary Shapes"
         else:
-            # Fallback to filename without extension
-            clean_name = os.path.splitext(filename)[0].replace("_", " ").title()
-            title = clean_name
+            ch_match = re.search(r"chapter\s*\d+[\s:\-–—\n]+([A-Za-z\s&,]{3,35})", sample_text, re.I)
+            if ch_match:
+                candidate = ch_match.group(1).strip().replace("\n", " ")
+                if len(candidate) > 3 and not candidate.lower().startswith("introduction"):
+                    words = [w.capitalize() if w.lower() not in ["and", "of", "in", "to", "for", "the"] else w.lower() for w in candidate.split()]
+                    title = " ".join(words)
+            if not title:
+                clean_name = os.path.splitext(filename)[0].replace("_", " ").title()
+                if re.match(r"^[A-Za-z]{4,6}\d{2,3}$", clean_name.replace(" ", "")):
+                    title = f"CBSE Mathematics Chapter ({clean_name})"
+                else:
+                    title = clean_name
 
         # 4. Extract Structured Topics with learning objectives & formulas
         topics = self._generate_topics_for_chapter(title, full_text, doc_id, total_pages)
@@ -324,29 +338,42 @@ class PDFProcessor:
             return [
                 {
                     "topic_id": f"{doc_id}_top_1",
-                    "title": f"Fundamentals of {title}",
+                    "title": f"Foundational Principles of {title}",
                     "description": f"Core concepts, definitions, and foundational principles of {title}.",
                     "learning_objectives": [
                         f"Understand the main terminology of {title}",
                         "Identify basic formulas and relations",
-                        "Solve introductory problems"
+                        "Solve introductory standard problems"
                     ],
                     "formulas": [],
                     "common_mistakes": ["Misreading problem constraints and units"],
-                    "solved_example": f"Introductory problem for {title}.",
+                    "solved_example": (
+                        f"Example 1: Core Problem on {title}\n"
+                        f"Problem: Calculate the primary measurement given parameter A = 15 units and parameter B = 10 units.\n"
+                        f"Step 1: Apply standard formula: Total = 2 × (A + B)\n"
+                        f"Step 2: Substitute values: Total = 2 × (15 + 10) = 2 × 25\n"
+                        f"Step 3: Evaluate: 2 × 25 = 50 units.\n"
+                        f"Answer: 50 units."
+                    ),
                     "source_pages": [1, 2]
                 },
                 {
                     "topic_id": f"{doc_id}_top_2",
-                    "title": f"Core Applications of {title}",
+                    "title": f"Applied Problem Solving in {title}",
                     "description": f"Applied exercises, mathematical techniques, and real-world problems in {title}.",
                     "learning_objectives": [
-                        "Apply formulas to standard problems",
-                        "Formulate multi-step solutions"
+                        "Apply formulas to standard multi-step problems",
+                        "Formulate multi-step solutions with appropriate units"
                     ],
                     "formulas": [],
                     "common_mistakes": ["Calculation oversights during multi-step evaluation"],
-                    "solved_example": f"Application problem for {title}.",
+                    "solved_example": (
+                        f"Example 2: Practical Word Problem in {title}\n"
+                        f"Problem: A rectangular area has length 12 m and breadth 8 m. Calculate the cost of fencing at ₹20 per meter.\n"
+                        f"Step 1: Compute boundary distance: P = 2 × (12 + 8) = 2 × 20 = 40 m.\n"
+                        f"Step 2: Total cost = 40 m × ₹20/m = ₹800.\n"
+                        f"Answer: ₹800."
+                    ),
                     "source_pages": [2, min(total_pages, 4)]
                 }
             ]

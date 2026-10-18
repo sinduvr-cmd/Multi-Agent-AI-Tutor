@@ -356,6 +356,59 @@ div[data-baseweb="select"] * {
 div[data-testid="stProgressBar"] > div > div {
     background: linear-gradient(90deg, #38BDF8 0%, #4F46E5 100%) !important;
 }
+
+/* ========================================================= */
+/* STREAMLIT ALERTS: Crystal Clear, High Contrast, Legible   */
+/* ========================================================= */
+
+[data-testid="stAlert"],
+div[data-baseweb="notification"] {
+    border-radius: 14px !important;
+    padding: 14px 20px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Ensure ALL text, paragraphs, and markdown inside alerts are bright white and sharp */
+[data-testid="stAlert"] *,
+[data-testid="stAlert"] p,
+[data-testid="stAlert"] span,
+[data-testid="stAlert"] div,
+div[data-baseweb="notification"] *,
+div[data-baseweb="notification"] p,
+div[data-baseweb="notification"] span {
+    color: #F8FAFC !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    line-height: 1.6 !important;
+}
+
+/* Info Box */
+[data-testid="stAlert"]:has([data-testid="stNotificationContentInfo"]),
+div[data-testid="stAlert"]:has(svg[data-testid="stIconInfo"]) {
+    background: rgba(14, 116, 144, 0.35) !important;
+    border: 1.5px solid #38BDF8 !important;
+}
+
+/* Warning Box */
+[data-testid="stAlert"]:has([data-testid="stNotificationContentWarning"]),
+div[data-testid="stAlert"]:has(svg[data-testid="stIconWarning"]) {
+    background: rgba(180, 83, 9, 0.3) !important;
+    border: 1.5px solid #F59E0B !important;
+}
+
+/* Success Box */
+[data-testid="stAlert"]:has([data-testid="stNotificationContentSuccess"]),
+div[data-testid="stAlert"]:has(svg[data-testid="stIconSuccess"]) {
+    background: rgba(6, 95, 70, 0.35) !important;
+    border: 1.5px solid #10B981 !important;
+}
+
+/* Error Box */
+[data-testid="stAlert"]:has([data-testid="stNotificationContentError"]),
+div[data-testid="stAlert"]:has(svg[data-testid="stIconError"]) {
+    background: rgba(153, 27, 27, 0.35) !important;
+    border: 1.5px solid #EF4444 !important;
+}
 </style>
 """
 
@@ -363,3 +416,4 @@ div[data-testid="stProgressBar"] > div > div {
 def apply_custom_styles():
     import streamlit as st
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+

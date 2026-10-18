@@ -96,6 +96,10 @@ def render_quiz_generator(flow: TutorFlow, active_student_id: str):
                     selected_doc_id, "Perimeter and Area", filter_topic, question_count, difficulty, selected_qtypes, [1, 2]
                 )
 
+            # Guarantee all questions are saved in database
+            if questions:
+                db.save_questions(questions)
+
             # Initialize Quiz Session
             sess_id = f"sess_{uuid.uuid4().hex[:8]}"
             total_marks = sum(q.get("marks", 1) for q in questions)
