@@ -217,6 +217,34 @@ def get_or_create_student(student_id: str, name: str = "Aarav Sharma", grade: st
         return {"student_id": student_id, "name": name, "grade": grade}
 
 
+def update_student_profile(student_id: str, name: str, grade: str) -> Dict[str, Any]:
+    """Updates student profile name and grade."""
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE students SET name = ?, grade = ? WHERE student_id = ?",
+            (name.strip(), grade, student_id)
+        )
+        conn.commit()
+    return get_or_create_student(student_id, name.strip(), grade)
+
+
+def create_student_profile(name: str, grade: str = "Class 6") -> Dict[str, Any]:
+    """Creates a fresh student profile with a clean unique ID and registers it in the DB."""
+    import uuid
+    import re
+    base_slug = re.sub(r'[^a-zA-Z0-9]', '_', name.strip().lower())[:12] or "student"
+    new_id = f"std_{base_slug}_{uuid.uuid4().hex[:4]}"
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO students (student_id, name, grade) VALUES (?, ?, ?)",
+            (new_id, name.strip(), grade)
+        )
+        conn.commit()
+    return {"student_id": new_id, "name": name.strip(), "grade": grade}
+
+
 def list_students() -> List[Dict[str, Any]]:
     with get_connection() as conn:
         cursor = conn.cursor()

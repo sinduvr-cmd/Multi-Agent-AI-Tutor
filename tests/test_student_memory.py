@@ -109,3 +109,54 @@ def test_unregistered_question_attempt_foreign_key_safety():
     overview = MemoryService.get_mastery_overview(std_id)
     assert overview["total_questions_answered"] == 1
     assert overview["correct_count"] == 1
+
+
+def test_student_profile_update_and_creation():
+    """Verifies that students can create custom profiles and update their names."""
+    db.init_db()
+    # 1. Create a custom student
+    custom = db.create_student_profile("Priya Patel", "Class 8")
+    assert custom["name"] == "Priya Patel"
+    assert custom["grade"] == "Class 8"
+    assert "std_priya_patel" in custom["student_id"]
+
+    # 2. Update student name
+    updated = db.update_student_profile(custom["student_id"], "Priya P. Sharma", "Class 9")
+    assert updated["name"] == "Priya P. Sharma"
+    assert updated["grade"] == "Class 9"
+
+    # 3. Verify in student list
+    students = db.list_students()
+    match = next((s for s in students if s["student_id"] == custom["student_id"]), None)
+    assert match is not None
+    assert match["name"] == "Priya P. Sharma"
+
+
+def test_student_report_card_pdf_generation():
+    """Verifies that ExportService can compile a valid student report card PDF."""
+    from services.export_service import ExportService
+    overview = {
+        "total_quizzes": 3,
+        "total_questions_answered": 15,
+        "overall_accuracy": 86.7,
+        "recommended_difficulty": "Proficient",
+        "weak_topics": [],
+        "strong_topics": [{"topic": "Perimeter", "score": 90.0, "level": "Mastered"}]
+    }
+    mastery_rows = [
+        {"topic_title": "Perimeter", "score_percentage": 90.0, "attempts_count": 10, "correct_count": 9, "level": "Mastered"}
+    ]
+    attempts = [
+        {"chapter": "Perimeter and Area", "topic": "Perimeter", "question_type": "MCQ", "student_answer": "24", "is_correct": 1, "marks_awarded": 1.0, "max_marks": 1.0}
+    ]
+
+    pdf_bytes = ExportService.generate_student_report_card_pdf(
+        student_name="Priya Patel",
+        grade="Class 8",
+        overview=overview,
+        mastery_rows=mastery_rows,
+        attempts=attempts
+    )
+    assert isinstance(pdf_bytes, bytes)
+    assert len(pdf_bytes) > 500
+    assert pdf_bytes.startswith(b"%PDF")

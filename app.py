@@ -72,15 +72,55 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    # Student Badge Card
+    # Student Badge Card & Interactive Profile Manager
     st.markdown(f"""
     <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); 
-                border-radius: 12px; padding: 12px 14px; margin-bottom: 20px;">
+                border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;">
         <div style="font-size: 11px; text-transform: uppercase; color: #818CF8; font-weight: 700;">Student Profile</div>
-        <div style="font-size: 15px; font-weight: 700; color: #F8FAFC; margin-top: 2px;">{current_student['name']}</div>
+        <div style="font-size: 16px; font-weight: 800; color: #F8FAFC; margin-top: 2px;">{current_student['name']}</div>
         <div style="font-size: 12px; color: #94A3B8;">{current_student['grade']} • Mathematics</div>
     </div>
     """, unsafe_allow_html=True)
+
+    with st.expander("👤 Enter Name / Switch Student", expanded=False):
+        all_students = db.list_students()
+        student_names = {s["student_id"]: f"{s['name']} ({s['grade']})" for s in all_students}
+
+        if len(all_students) > 1:
+            switch_id = st.selectbox(
+                "Switch Profile:",
+                options=list(student_names.keys()),
+                format_func=lambda x: student_names[x],
+                index=list(student_names.keys()).index(active_student_id) if active_student_id in student_names else 0,
+                key="sb_switch_sel"
+            )
+            if switch_id != active_student_id:
+                if st.button("🔄 Switch to Selected Student", use_container_width=True, key="btn_sb_switch"):
+                    st.session_state["active_student_id"] = switch_id
+                    st.rerun()
+
+        st.caption("Change name or class for this session:")
+        edit_name_val = st.text_input("Student Name:", value=current_student["name"], key="sb_name_input")
+        grade_list = [f"Class {i}" for i in range(6, 13)]
+        curr_g_idx = grade_list.index(current_student["grade"]) if current_student["grade"] in grade_list else 0
+        edit_grade_val = st.selectbox("Grade / Class:", options=grade_list, index=curr_g_idx, key="sb_grade_select")
+
+        c_sb1, c_sb2 = st.columns(2)
+        with c_sb1:
+            if st.button("💾 Save Name", use_container_width=True, type="primary", key="btn_sb_save"):
+                if edit_name_val.strip():
+                    db.update_student_profile(active_student_id, edit_name_val.strip(), edit_grade_val)
+                    st.success("Updated!")
+                    st.rerun()
+        with c_sb2:
+            if st.button("➕ New Student", use_container_width=True, key="btn_sb_create"):
+                if edit_name_val.strip():
+                    created = db.create_student_profile(edit_name_val.strip(), edit_grade_val)
+                    st.session_state["active_student_id"] = created["student_id"]
+                    st.success(f"Welcome, {edit_name_val.strip()}!")
+                    st.rerun()
+
+    st.write("")
 
     # Navigation Menu
     nav_options = [

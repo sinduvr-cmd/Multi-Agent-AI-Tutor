@@ -31,6 +31,24 @@ def render_settings_view(flow: TutorFlow, active_student_id: str):
         current_student = db.get_or_create_student(active_student_id)
         st.info(f"Currently Active: **{current_student['name']}** ({current_student['grade']}) — ID: `{active_student_id}`")
 
+        # Edit Current Profile Name
+        st.markdown("##### ✏️ Edit Current Student Name & Grade:")
+        with st.form("form_edit_active_student"):
+            edit_name = st.text_input("Student Name:", value=current_student["name"])
+            grade_list = [f"Class {i}" for i in range(6, 13)]
+            curr_g_idx = grade_list.index(current_student["grade"]) if current_student["grade"] in grade_list else 0
+            edit_grade = st.selectbox("Grade / Class:", options=grade_list, index=curr_g_idx)
+            save_clicked = st.form_submit_button("💾 Save Profile Updates", type="primary")
+            if save_clicked:
+                if edit_name.strip():
+                    db.update_student_profile(active_student_id, edit_name.strip(), edit_grade)
+                    st.success(f"Profile updated! Active student is now {edit_name.strip()}.")
+                    st.rerun()
+                else:
+                    st.error("Please enter a valid student name.")
+
+        st.divider()
+
         # Switch Profile
         if len(students) > 1:
             st.markdown("##### Switch Student Profile:")

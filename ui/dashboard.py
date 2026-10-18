@@ -10,21 +10,44 @@ from services.memory_service import MemoryService
 from services.analytics_service import AnalyticsService
 
 
+from services.export_service import ExportService
+
+
 def render_dashboard(active_student_id: str, on_navigate_callback):
     student = db.get_or_create_student(active_student_id)
     overview = MemoryService.get_mastery_overview(active_student_id)
     documents = db.list_documents()
 
-    # Hero Banner
+    # Hero Banner with Personal Greeting
     st.markdown(f"""
     <div class="tutor-hero-card">
         <div class="tutor-hero-title">Welcome back, {student['name']}! 👋</div>
         <div class="tutor-hero-subtitle">
-            Your Multi-Agent AI Tutor is ready. All lessons and assessments are strictly grounded 
-            in your verified CBSE textbooks and uploaded chapters.
+            Your Multi-Agent AI Tutor is active for <b>{student['grade']}</b>. All lessons and assessments are strictly grounded 
+            in verified CBSE curriculum and your uploaded textbook chapters.
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # Interactive Name & Profile Personalization Bar
+    with st.expander("👤 Enter Your Name / Customize Profile", expanded=False):
+        c_dn1, c_dn2, c_dn3 = st.columns([2, 1, 1])
+        with c_dn1:
+            dash_name = st.text_input("Enter Student Name:", value=student["name"], key="dash_name_input")
+        with c_dn2:
+            grade_opts = [f"Class {i}" for i in range(6, 13)]
+            g_idx = grade_opts.index(student["grade"]) if student["grade"] in grade_opts else 0
+            dash_grade = st.selectbox("Class / Grade:", options=grade_opts, index=g_idx, key="dash_grade_select")
+        with c_dn3:
+            st.write("")
+            st.write("")
+            if st.button("💾 Update My Name", use_container_width=True, type="primary", key="btn_dash_save"):
+                if dash_name.strip():
+                    db.update_student_profile(active_student_id, dash_name.strip(), dash_grade)
+                    st.success(f"Profile updated to {dash_name.strip()}!")
+                    st.rerun()
+
+    st.write("")
 
     # Metric Cards
     c1, c2, c3, c4 = st.columns(4)
@@ -60,20 +83,37 @@ def render_dashboard(active_student_id: str, on_navigate_callback):
     st.write("")
     st.write("")
 
-    # Quick Launch Buttons
-    col_act1, col_act2, col_act3, col_act4 = st.columns(4)
+    # Quick Launch & Share Buttons
+    col_act1, col_act2, col_act3, col_act4, col_act5 = st.columns(5)
     with col_act1:
         if st.button("📖 Learn with AI", use_container_width=True, type="primary"):
             on_navigate_callback("Learn with AI")
     with col_act2:
-        if st.button("📝 Start Adaptive Quiz", use_container_width=True):
+        if st.button("📝 Start Quiz", use_container_width=True):
             on_navigate_callback("Generate Quiz")
     with col_act3:
-        if st.button("📄 Upload Chapter PDF", use_container_width=True):
+        if st.button("📄 Upload PDF", use_container_width=True):
             on_navigate_callback("Upload Chapter")
     with col_act4:
         if st.button("💬 AI Tutor Chat", use_container_width=True):
             on_navigate_callback("AI Tutor Chat")
+    with col_act5:
+        mastery_rows = db.get_student_mastery(active_student_id)
+        attempts = db.get_student_attempts(active_student_id, limit=30)
+        report_pdf = ExportService.generate_student_report_card_pdf(
+            student_name=student["name"],
+            grade=student["grade"],
+            overview=overview,
+            mastery_rows=mastery_rows,
+            attempts=attempts
+        )
+        st.download_button(
+            label="📤 Share Report (PDF)",
+            data=report_pdf,
+            file_name=f"Report_Card_{student['name'].replace(' ', '_')}.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
 
     st.divider()
 

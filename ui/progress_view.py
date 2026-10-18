@@ -93,18 +93,33 @@ def render_progress_view(active_student_id: str):
 
     st.divider()
 
-    # CSV Export and History Reset
-    col_exp1, col_exp2 = st.columns([2, 1])
+    # Report Card PDF, CSV Export and History Reset
+    col_exp1, col_exp2, col_exp3 = st.columns([1.5, 1.5, 1])
     with col_exp1:
+        report_pdf = ExportService.generate_student_report_card_pdf(
+            student_name=student["name"],
+            grade=student["grade"],
+            overview=overview,
+            mastery_rows=mastery_rows,
+            attempts=attempts
+        )
+        st.download_button(
+            label="📄 Download Official Report Card (PDF)",
+            data=report_pdf,
+            file_name=f"Report_Card_{student['name'].replace(' ', '_')}.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+    with col_exp2:
         csv_data = ExportService.export_attempts_to_csv(attempts)
         st.download_button(
             label="📥 Download My Quiz History (CSV)",
             data=csv_data,
-            file_name=f"quiz_history_{active_student_id}.csv",
+            file_name=f"quiz_history_{student['name'].replace(' ', '_')}.csv",
             mime="text/csv",
             use_container_width=True
         )
-    with col_exp2:
+    with col_exp3:
         if st.button("🗑️ Reset My History", use_container_width=True):
             db.delete_student_history(active_student_id)
             st.success("Student quiz history and mastery cleared.")
